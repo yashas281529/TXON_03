@@ -1,0 +1,259 @@
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView textViewExpression;
+    private TextView textViewResult;
+
+    private StringBuilder expressionBuilder;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        textViewExpression = findViewById(R.id.text_view_expression);
+        textViewResult = findViewById(R.id.text_view_result);
+
+        expressionBuilder = new StringBuilder();
+
+        Button button0 = findViewById(R.id.button_0);
+        Button button1 = findViewById(R.id.button_1);
+        Button button2 = findViewById(R.id.button_2);
+        Button button3 = findViewById(R.id.button_3);
+        Button button4 = findViewById(R.id.button_4);
+        Button button5 = findViewById(R.id.button_5);
+        Button button6 = findViewById(R.id.button_6);
+        Button button7 = findViewById(R.id.button_7);
+        Button button8 = findViewById(R.id.button_8);
+        Button button9 = findViewById(R.id.button_9);
+
+        Button buttonAdd = findViewById(R.id.button_add);
+        Button buttonSubtract = findViewById(R.id.button_subtract);
+        Button buttonMultiply = findViewById(R.id.button_multiply);
+        Button buttonDivide = findViewById(R.id.button_divide);
+
+        Button buttonClear = findViewById(R.id.button_clear);
+        Button buttonCalculate = findViewById(R.id.button_calculate);
+
+        button0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("0");
+            }
+        });
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("1");
+            }
+        });
+
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("2");
+            }
+        });
+
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("3");
+            }
+        });
+
+        button4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("4");
+            }
+        });
+
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("5");
+            }
+        });
+
+        button6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("6");
+            }
+        });
+
+        button7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("7");
+            }
+        });
+
+        button8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("8");
+            }
+        });
+
+        button9.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("9");
+            }
+        });
+
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("+");
+            }
+        });
+
+        buttonSubtract.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("-");
+            }
+        });
+
+        buttonMultiply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("*");
+            }
+        });
+
+        buttonDivide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToExpression("/");
+            }
+        });
+
+        buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearExpression();
+            }
+        });
+
+        buttonCalculate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calculateExpression();
+            }
+        });
+    }
+
+    private void appendToExpression(String value) {
+        expressionBuilder.append(value);
+        textViewExpression.setText(expressionBuilder.toString());
+    }
+
+    private void clearExpression() {
+        expressionBuilder.setLength(0);
+        textViewExpression.setText("");
+        textViewResult.setText("");
+    }
+
+    private void calculateExpression() {
+        try {
+            String expression = expressionBuilder.toString();
+            double result = evaluateExpression(expression);
+            textViewResult.setText(String.valueOf(result));
+        } catch (Exception e) {
+            textViewResult.setText("Error");
+        }
+    }
+
+    private double evaluateExpression(String expression) {
+        return new Object() {
+            int position = -1;
+            int currentChar;
+
+            void getNextChar() {
+                currentChar = (++position < expression.length()) ? expression.charAt(position) : -1;
+            }
+
+            boolean isDigit() {
+                return currentChar >= '0' && currentChar <= '9';
+            }
+
+            double parseNumber() {
+                StringBuilder builder = new StringBuilder();
+                while (isDigit()) {
+                    builder.append((char) currentChar);
+                    getNextChar();
+                }
+                return Double.parseDouble(builder.toString());
+            }
+
+            double evaluate() {
+                getNextChar();
+                double result = parseExpression();
+                if (position < expression.length())
+                    throw new RuntimeException("Unexpected character: " + (char) currentChar);
+                return result;
+            }
+
+            double parseExpression() {
+                double result = parseTerm();
+                while (true) {
+                    if (currentChar == '+') {
+                        getNextChar();
+                        result += parseTerm();
+                    } else if (currentChar == '-') {
+                        getNextChar();
+                        result -= parseTerm();
+                    } else
+                        return result;
+                }
+            }
+
+            double parseTerm() {
+                double result = parseFactor();
+                while (true) {
+                    if (currentChar == '*') {
+                        getNextChar();
+                        result *= parseFactor();
+                    } else if (currentChar == '/') {
+                        getNextChar();
+                        result /= parseFactor();
+                    } else
+                        return result;
+                }
+            }
+
+            double parseFactor() {
+                if (currentChar == '-') {
+                    getNextChar();
+                    return -parseFactor();
+                }
+                double result;
+                int startPosition = this.position;
+                if (currentChar == '(') {
+                    getNextChar();
+                    result = parseExpression();
+                    if (currentChar == ')') {
+                        getNextChar();
+                    } else {
+                        throw new RuntimeException("Mismatched parentheses");
+                    }
+                } else if (isDigit()) {
+                    result = parseNumber();
+                } else {
+                    throw new RuntimeException("Unexpected character: " + (char) currentChar);
+                }
+                return result;
+            }
+        }.evaluate();
+    }
+}
